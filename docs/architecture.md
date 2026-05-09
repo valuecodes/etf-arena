@@ -106,7 +106,7 @@ prose. Every Workflow write is `INSERT … ON CONFLICT DO NOTHING` (or
   applied via deterministic recompute from the full `trades` history on
   each run, never incremental. **Cash** is not stored here; it is
   reconstructed as `teams.starting_cash + Σ(trade cashflows up to
-  run_date)` and persisted per-run on `portfolio_snapshots.cash`. NAV
+run_date)` and persisted per-run on `portfolio_snapshots.cash`. NAV
   on the snapshot is `cash + Σ(qty × close_price)` for that run_date.
 - `macro_briefs(run_date PRIMARY KEY, summary_public, body_r2_key)` — one row
   per date, shared across teams.

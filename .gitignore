@@ -3,3 +3,5 @@ node_modules
 .prod.vars
 .env
 .wrangler
+dist
+.astro

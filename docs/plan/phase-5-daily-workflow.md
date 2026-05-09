@@ -20,7 +20,7 @@ cron rules, and idempotency contract.
 - `apps/agents` Workflow steps implemented (stubs remain for the rest):
   - `openRun` — derive `run_date` from the cron fire time as the
     just-closed US market date (`America/New_York`). `INSERT … ON
-    CONFLICT DO UPDATE` on `runs(run_date)`. Calendar guard via Polygon
+CONFLICT DO UPDATE` on `runs(run_date)`. Calendar guard via Polygon
     market-status: weekend/holiday → `status='skipped'` and exit;
     finalized-bar guard checks **`run_date` itself** (not the prior
     day) — if not yet final, `status='pending_close'` and exit so a
