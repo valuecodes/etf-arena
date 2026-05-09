@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm format:check:*)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm format:*)",
+      "Bash(pnpm --filter:*)",
+      "Bash(gh api *)"
+    ]
+  }
+}
