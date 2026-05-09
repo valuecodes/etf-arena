@@ -54,8 +54,10 @@ covers the web app — do not add another Prettier config.
 
 - `apps/web` has no DB or storage bindings. It reads everything from
   `apps/api`.
-- `apps/api` is the only worker exposed on a public hostname (e.g.
-  `api.<domain>`). It holds D1, R2, and KV bindings, plus a **Service
+- `apps/api` is the only **API** worker on a public hostname (e.g.
+  `api.<domain>`); `apps/web` is also publicly served, on its own
+  hostname, but holds no DB or storage bindings. `apps/api` holds D1,
+  R2, and KV bindings, plus a **Service
   Binding to `apps/agents`** (used by admin actions to start runs). It
   also exposes a `WorkerEntrypoint` whose only RPC method is
   `invalidateAfterRun(runDate)` — called by the agents worker to purge
@@ -94,8 +96,10 @@ prose. Every Workflow write is `INSERT … ON CONFLICT DO NOTHING` (or
   is not retroactively "in" earlier sessions).
 - `agents(id, team_id, role, system_prompt)` — roles: `analyst`, `risk`, `pm`, …
 - `runs(run_date PRIMARY KEY, status, started_at, finished_at, error)` —
-  status: `pending` | `running` | `succeeded` | `failed` | `skipped`. One
-  row per run-date, drives all idempotency.
+  status: `pending` | `running` | `succeeded` | `failed` | `skipped` |
+  `pending_close` (the last set when `openRun` finds the EOD bar
+  isn't yet finalized; see _Cron & trading calendar_). One row per
+  run-date, drives all idempotency.
 - `team_runs(run_date, team_id, status, error, PRIMARY KEY(run_date, team_id))` —
   per-team status within a run; allows partial retries.
 - `decisions(id, team_id, run_date, summary_public, transcript_r2_key, macro_brief_id, UNIQUE(team_id, run_date))`

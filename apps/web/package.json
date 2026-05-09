@@ -6,11 +6,11 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro build && wrangler dev",
+    "preview": "astro build && wrangler dev --config ./dist/server/wrangler.json",
     "typecheck": "astro check && tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
-    "deploy": "wrangler deploy"
+    "deploy": "astro build && wrangler deploy --config ./dist/server/wrangler.json"
   },
   "prettier": "@repo/prettier",
   "dependencies": {
