@@ -1,0 +1,13 @@
+{
+  "extends": "@repo/typescript/react.json",
+  "compilerOptions": {
+    "types": ["astro/client"]
+  },
+  "include": [
+    "src",
+    ".astro/types.d.ts",
+    "astro.config.ts",
+    "vitest.config.ts"
+  ],
+  "exclude": ["node_modules", "dist", ".astro", ".wrangler"]
+}

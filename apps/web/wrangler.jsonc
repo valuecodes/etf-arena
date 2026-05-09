@@ -1,0 +1,7 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "etf-arena-web",
+  "compatibility_date": "2026-05-01",
+  "observability": { "enabled": true },
+  "workers_dev": true,
+}
