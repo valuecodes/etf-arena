@@ -13,6 +13,7 @@
   },
   "prettier": "@repo/prettier",
   "dependencies": {
+    "@repo/logger": "workspace:*",
     "@repo/types": "workspace:*",
     "hono": "4.12.15",
     "zod": "4.3.6"
