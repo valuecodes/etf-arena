@@ -5,11 +5,10 @@
   "compatibility_date": "2026-05-01",
   "observability": { "enabled": true },
   "workers_dev": true,
-  // Operators must override WEB_ORIGIN with the real deployed web origin
-  // (`<worker>.<account-subdomain>.workers.dev` or a custom domain) before
-  // deploying. The placeholder host is intentionally fake so misconfiguration
-  // surfaces loudly in CORS instead of silently allowing the wrong origin.
+  // Top-level vars are the default for every deploy. When feature-branch /
+  // preview web origins exist, add `env.<name>.vars.WEB_ORIGIN` here to
+  // allow CORS for those origins.
   "vars": {
-    "WEB_ORIGIN": "https://etf-arena-web.example.workers.dev",
+    "WEB_ORIGIN": "https://etf-arena-web.valuecodes.workers.dev",
   },
 }
