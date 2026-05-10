@@ -1,4 +1,4 @@
-import type { ErrorHandler } from "hono";
+import type { Context, ErrorHandler } from "hono";
 import type { AppEnv } from "../types";
 
 export const onErrorHandler: ErrorHandler<AppEnv> = (err, c) => {
@@ -15,3 +15,6 @@ export const onErrorHandler: ErrorHandler<AppEnv> = (err, c) => {
 
   return c.json({ error: "Internal Server Error" }, 500);
 };
+
+export const notFoundHandler = (c: Context<AppEnv>) =>
+  c.json({ error: "not_found" }, 404);

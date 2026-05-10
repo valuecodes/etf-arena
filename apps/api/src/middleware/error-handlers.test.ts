@@ -2,9 +2,12 @@ import type { LogEntry } from "@repo/logger";
 import { Hono } from "hono";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { MockInstance } from "vitest";
+import { z } from "zod";
 import type { AppEnv } from "../types";
-import { onErrorHandler } from "./error-handlers";
+import { notFoundHandler, onErrorHandler } from "./error-handlers";
 import { loggerMiddleware } from "./logger";
+
+const ErrorResponseSchema = z.object({ error: z.string() });
 
 type ConsoleSpy = MockInstance<(...args: unknown[]) => void>;
 
@@ -42,12 +45,26 @@ describe("onErrorHandler", () => {
     const res = await app.request("/fail");
     expect(res.status).toBe(500);
 
-    const body = await res.json();
+    const body = ErrorResponseSchema.parse(await res.json());
     expect(body.error).toBe("Internal Server Error");
 
     expect(consoleSpy.error).toHaveBeenCalled();
     const errorEntry = parseLogEntry(consoleSpy.error);
     expect(errorEntry.message).toBe("unhandled error");
     expect(errorEntry.error).toBe("something broke");
+  });
+});
+
+describe("notFoundHandler", () => {
+  it("returns a 404 JSON response with error: not_found", async () => {
+    const app = new Hono<AppEnv>();
+    app.notFound(notFoundHandler);
+    app.get("/known", (c) => c.json({ ok: true }));
+
+    const res = await app.request("/unknown");
+    expect(res.status).toBe(404);
+
+    const body = ErrorResponseSchema.parse(await res.json());
+    expect(body.error).toBe("not_found");
   });
 });

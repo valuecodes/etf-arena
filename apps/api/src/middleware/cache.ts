@@ -9,3 +9,13 @@ export const publicCache = (): MiddlewareHandler => async (c, next) => {
     c.res.headers.set("Cache-Control", PUBLIC_CACHE_CONTROL);
   }
 };
+
+export const defaultNoStoreCacheControlMiddleware: MiddlewareHandler = async (
+  c,
+  next
+) => {
+  await next();
+  if (!c.res.headers.has("Cache-Control")) {
+    c.res.headers.set("Cache-Control", "no-store");
+  }
+};

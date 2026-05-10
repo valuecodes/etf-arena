@@ -2,8 +2,11 @@ import type { LogEntry } from "@repo/logger";
 import { Hono } from "hono";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { MockInstance } from "vitest";
+import { z } from "zod";
 import type { AppEnv } from "../types";
 import { loggerMiddleware } from "./logger";
+
+const IdResponseSchema = z.object({ id: z.string() });
 
 type ConsoleSpy = MockInstance<(...args: unknown[]) => void>;
 
@@ -75,7 +78,7 @@ describe("loggerMiddleware", () => {
     app.get("/test", (c) => c.json({ id: c.get("requestId") }));
 
     const res = await app.request("/test");
-    const body = await res.json();
+    const body = IdResponseSchema.parse(await res.json());
 
     expect(res.headers.get("X-Request-Id")).toBeDefined();
     expect(res.headers.get("X-Request-Id")).toBe(body.id);
@@ -88,8 +91,8 @@ describe("loggerMiddleware", () => {
 
     const res1 = await app.request("/test");
     const res2 = await app.request("/test");
-    const body1 = await res1.json();
-    const body2 = await res2.json();
+    const body1 = IdResponseSchema.parse(await res1.json());
+    const body2 = IdResponseSchema.parse(await res2.json());
 
     expect(body1.id).toBeDefined();
     expect(body2.id).toBeDefined();
