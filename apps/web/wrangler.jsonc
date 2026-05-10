@@ -4,7 +4,15 @@
   "compatibility_date": "2026-05-01",
   "observability": { "enabled": true },
   "workers_dev": true,
-  "vars": {
-    "API_BASE_URL": "https://etf-arena-api.workers.dev",
+  // Operators must override API_BASE_URL with the real deployed api origin
+  // (`<worker>.<account-subdomain>.workers.dev` or a custom domain) before
+  // deploying production. The placeholder host is intentionally fake so
+  // misconfiguration surfaces as a failed fetch in production.
+  "env": {
+    "production": {
+      "vars": {
+        "API_BASE_URL": "https://etf-arena-api.example.workers.dev",
+      },
+    },
   },
 }
