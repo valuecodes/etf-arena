@@ -1,4 +1,5 @@
 ---
+import type { Logger } from "@repo/logger";
 import { TeamsResponseSchema, type TeamsResponse } from "@repo/types/api";
 import Clock from "../components/clock";
 import BaseLayout from "../layouts/base-layout.astro";
@@ -6,21 +7,55 @@ import { env } from "../lib/env";
 
 const cacheControl = "public, s-maxage=120, stale-while-revalidate=86400";
 
-const fetchTeams = async (): Promise<TeamsResponse | null> => {
+const { logger, requestId } = Astro.locals;
+
+const fetchTeams = async (
+  log: Logger,
+  reqId: string
+): Promise<TeamsResponse | null> => {
+  const url = `${env.API_BASE_URL}/teams`;
+  log.info("fetching teams", { requestId: reqId, url });
+
   try {
-    const res = await fetch(`${env.API_BASE_URL}/teams`);
+    const res = await fetch(url);
+    log.info("teams response", {
+      requestId: reqId,
+      url,
+      status: res.status,
+      ok: res.ok,
+    });
+
     if (!res.ok) {
       return null;
     }
     const body: unknown = await res.json();
     const parsed = TeamsResponseSchema.safeParse(body);
-    return parsed.success ? parsed.data : null;
-  } catch {
+    if (!parsed.success) {
+      log.warn("teams response failed schema parse", {
+        requestId: reqId,
+        url,
+        issues: parsed.error.issues,
+      });
+      return null;
+    }
+    log.info("teams parsed", {
+      requestId: reqId,
+      url,
+      count: parsed.data.length,
+    });
+    return parsed.data;
+  } catch (err) {
+    log.error("teams fetch threw", {
+      requestId: reqId,
+      url,
+      error: err instanceof Error ? err.message : String(err),
+      stack: err instanceof Error ? err.stack : undefined,
+    });
     return null;
   }
 };
 
-const teams = await fetchTeams();
+const teams = await fetchTeams(logger, requestId);
 const navFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
