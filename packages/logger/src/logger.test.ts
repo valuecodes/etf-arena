@@ -256,5 +256,31 @@ describe("Logger", () => {
         logger.info("cycle", cyclic);
       }).not.toThrow();
     });
+
+    it("preserves Date metadata so it serializes via toJSON", () => {
+      const logger = new Logger({ context: "api" });
+      const when = new Date("2026-05-10T12:00:00.000Z");
+      logger.info("dated", { when });
+
+      const entry = parseLogEntry(consoleSpy.log);
+      expect(entry.when).toBe("2026-05-10T12:00:00.000Z");
+    });
+
+    it("strips __proto__ and constructor keys from redacted output", () => {
+      const logger = new Logger({ context: "api" });
+      // JSON.parse is the realistic source of an own __proto__ data property:
+      // an object literal {"__proto__": ...} would set the prototype instead.
+      const polluted = JSON.parse(
+        '{"__proto__": {"polluted": true}, "constructor": "evil", "ok": "yes"}'
+      ) as Record<string, unknown>;
+
+      logger.info("polluted", polluted);
+
+      const entry = parseLogEntry(consoleSpy.log);
+      expect(entry.ok).toBe("yes");
+      expect(Object.hasOwn(entry, "__proto__")).toBe(false);
+      expect(Object.hasOwn(entry, "constructor")).toBe(false);
+      expect(Object.getPrototypeOf(entry)).toBe(Object.prototype);
+    });
   });
 });

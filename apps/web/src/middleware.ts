@@ -38,6 +38,16 @@ export const onRequest = defineMiddleware(async (context, next) => {
       stack: err instanceof Error ? err.stack : undefined,
       duration: Date.now() - start,
     });
-    throw err;
+
+    // Rethrowing here would let Astro emit a 500 page that bypasses our
+    // headers + request id. Build a minimal error response so security
+    // headers and request correlation are applied to error paths too.
+    const response = new Response("Internal Server Error", {
+      status: 500,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
+    response.headers.set("X-Request-Id", requestId);
+    applySecurityHeaders(response);
+    return response;
   }
 });
