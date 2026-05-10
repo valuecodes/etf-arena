@@ -1,27 +1,21 @@
-import { Hono } from "hono";
-import { etag } from "hono/etag";
-import { secureHeaders } from "hono/secure-headers";
-import { defaultNoStoreCacheControlMiddleware } from "./middleware/cache";
-import { corsMiddleware } from "./middleware/cors";
-import { notFoundHandler, onErrorHandler } from "./middleware/error-handlers";
-import { loggerMiddleware } from "./middleware/logger";
-import { healthRoute } from "./routes/health";
-import { teamsRoute } from "./routes/teams";
-import type { AppEnv } from "./types";
+import { Logger } from "@repo/logger";
+import type { ApiRpc } from "@repo/types/rpc";
+import { WorkerEntrypoint } from "cloudflare:workers";
+import { app } from "./app";
+import type { Env } from "./env";
 
-const app = new Hono<AppEnv>();
+const rpcLogger = new Logger({ context: "api.rpc" });
 
-app.use("*", secureHeaders());
-app.use("*", corsMiddleware());
-app.use("*", loggerMiddleware);
-app.use("*", etag({ weak: true }));
-app.use("*", defaultNoStoreCacheControlMiddleware);
+export default class ApiEntrypoint
+  extends WorkerEntrypoint<Env>
+  implements ApiRpc
+{
+  fetch(request: Request): Response | Promise<Response> {
+    return app.fetch(request, this.env, this.ctx);
+  }
 
-app.onError(onErrorHandler);
-
-app.route("/health", healthRoute);
-app.route("/teams", teamsRoute);
-
-app.notFound(notFoundHandler);
-
-export default app;
+  invalidateAfterRun(runDate: string): Promise<{ status: "stub" }> {
+    rpcLogger.info("invalidateAfterRun (stub)", { runDate });
+    return Promise.resolve({ status: "stub" });
+  }
+}

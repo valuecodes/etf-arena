@@ -1,0 +1,2 @@
+# No env vars required in phase 3. Phase 5 adds OPENAI_API_KEY,
+# POLYGON_API_KEY, PERPLEXITY_API_KEY here.
