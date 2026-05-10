@@ -17,6 +17,7 @@
     "@astrojs/check": "0.9.8",
     "@astrojs/cloudflare": "13.2.1",
     "@astrojs/react": "5.0.4",
+    "@repo/logger": "workspace:*",
     "@repo/types": "workspace:*",
     "@tailwindcss/vite": "4.2.4",
     "astro": "6.1.9",

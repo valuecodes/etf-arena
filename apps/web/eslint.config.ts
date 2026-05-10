@@ -13,5 +13,9 @@ export default defineConfig(
       "src/components/**/*.tsx",
     ],
     rules: { "import/no-default-export": "off" },
+  },
+  {
+    files: ["src/env.d.ts"],
+    rules: { "@typescript-eslint/consistent-type-definitions": "off" },
   }
 );
