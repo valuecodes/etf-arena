@@ -1,6 +1,8 @@
+import { redact } from "./redact";
 import type { LogEntry, LoggerConfig, LogLevel, LogMetadata } from "./types";
 
 export type { LogEntry, LoggerConfig, LogLevel, LogMetadata } from "./types";
+export { redact, REDACTED } from "./redact";
 
 const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
   debug: 0,
@@ -54,8 +56,11 @@ export class Logger {
       return;
     }
 
+    const safeMetadata =
+      metadata === undefined ? undefined : (redact(metadata) as LogMetadata);
+
     const entry: LogEntry = {
-      ...(metadata ?? {}),
+      ...(safeMetadata ?? {}),
       timestamp: new Date().toISOString(),
       level,
       context: this.context,

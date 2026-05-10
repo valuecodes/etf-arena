@@ -1,5 +1,6 @@
 import { Logger } from "@repo/logger";
 import { defineMiddleware } from "astro:middleware";
+import { applySecurityHeaders } from "./lib/security-headers";
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const requestId = crypto.randomUUID();
@@ -17,6 +18,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   try {
     const response = await next();
     response.headers.set("X-Request-Id", requestId);
+    applySecurityHeaders(response);
 
     logger.info("request completed", {
       requestId,

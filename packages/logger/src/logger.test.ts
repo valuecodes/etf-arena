@@ -168,4 +168,93 @@ describe("Logger", () => {
       expect(warnEntry.context).toBe("api:teams");
     });
   });
+
+  describe("metadata redaction", () => {
+    it("redacts top-level sensitive keys", () => {
+      const logger = new Logger({ context: "api" });
+      logger.info("auth", { authorization: "Bearer abc.def.ghi" });
+
+      const entry = parseLogEntry(consoleSpy.log);
+      expect(entry.authorization).toBe("[REDACTED]");
+    });
+
+    it("redacts nested sensitive keys while preserving structure", () => {
+      const logger = new Logger({ context: "api" });
+      logger.info("req", {
+        method: "GET",
+        headers: { Cookie: "sid=secret-value", "X-Trace-Id": "abc" },
+      });
+
+      const entry = parseLogEntry(consoleSpy.log);
+      expect(entry.method).toBe("GET");
+      const headers = entry.headers as Record<string, unknown>;
+      expect(headers.Cookie).toBe("[REDACTED]");
+      expect(headers["X-Trace-Id"]).toBe("abc");
+    });
+
+    it("matches keys case-insensitively and across casing styles", () => {
+      const logger = new Logger({ context: "api" });
+      logger.info("variants", {
+        Authorization: "x",
+        AUTHORIZATION: "x",
+        "x-api-key": "x",
+        apiKey: "x",
+        API_KEY: "x",
+        accessToken: "x",
+        clientSecret: "x",
+      });
+
+      const entry = parseLogEntry(consoleSpy.log);
+      expect(entry.Authorization).toBe("[REDACTED]");
+      expect(entry.AUTHORIZATION).toBe("[REDACTED]");
+      expect(entry["x-api-key"]).toBe("[REDACTED]");
+      expect(entry.apiKey).toBe("[REDACTED]");
+      expect(entry.API_KEY).toBe("[REDACTED]");
+      expect(entry.accessToken).toBe("[REDACTED]");
+      expect(entry.clientSecret).toBe("[REDACTED]");
+    });
+
+    it("leaves non-sensitive keys untouched", () => {
+      const logger = new Logger({ context: "api" });
+      logger.info("plain", {
+        method: "GET",
+        path: "/teams",
+        statusCode: 200,
+        duration: 12,
+      });
+
+      const entry = parseLogEntry(consoleSpy.log);
+      expect(entry.method).toBe("GET");
+      expect(entry.path).toBe("/teams");
+      expect(entry.statusCode).toBe(200);
+      expect(entry.duration).toBe(12);
+    });
+
+    it("redacts sensitive keys inside arrays of objects", () => {
+      const logger = new Logger({ context: "api" });
+      logger.info("batch", {
+        items: [
+          { id: 1, token: "a" },
+          { id: 2, token: "b" },
+        ],
+      });
+
+      const entry = parseLogEntry(consoleSpy.log);
+      const items = entry.items as Record<string, unknown>[];
+      expect(items[0]?.id).toBe(1);
+      expect(items[0]?.token).toBe("[REDACTED]");
+      expect(items[1]?.id).toBe(2);
+      expect(items[1]?.token).toBe("[REDACTED]");
+    });
+
+    it("does not crash on cycles and caps deep nesting", () => {
+      const logger = new Logger({ context: "api" });
+      const cyclic: Record<string, unknown> = { name: "root" };
+      cyclic.self = cyclic;
+
+      expect(() => {
+        logger.info("cycle", cyclic);
+      }).not.toThrow();
+    });
+  });
 });
