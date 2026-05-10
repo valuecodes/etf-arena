@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import app from "../index";
+import { app } from "../app";
 
 describe("CORS", () => {
   it("preflight from the allowed origin returns the allow header", async () => {

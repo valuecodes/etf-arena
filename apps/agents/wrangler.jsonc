@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "etf-arena-agents",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  // Internal-only worker. Service Bindings are how callers reach it.
+  "workers_dev": false,
+  // No `routes` — never publicly addressable.
+
+  // Caller-side Service Binding: agents → api. Used by the scheduled
+  // handler to call api.invalidateAfterRun(runDate) after a run.
+  "services": [{ "binding": "API", "service": "etf-arena-api" }],
+
+  "vars": {},
+
+  // Production-intent schedule from the architecture doc: weekdays at
+  // 22:05 UTC (post-US-equity-close in both EDT and EST). Phase 3 fires
+  // a stub handler so the agents → api binding is verified in prod
+  // automatically. Phase 5 swaps the handler for the real Workflow.
+  "triggers": {
+    "crons": ["5 22 * * 1-5"],
+  },
+}

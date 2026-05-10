@@ -1,7 +1,7 @@
 import { TeamDetailSchema, TeamsResponseSchema } from "@repo/types/api";
 import { describe, expect, it } from "vitest";
+import { app } from "../app";
 import { teamDetailFixtures, teamFixtures } from "../data/fixtures";
-import app from "../index";
 import { PUBLIC_CACHE_CONTROL } from "../middleware/cache";
 
 describe("GET /teams", () => {
