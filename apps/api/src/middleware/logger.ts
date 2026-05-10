@@ -15,18 +15,20 @@ export const loggerMiddleware = createMiddleware<AppEnv>(async (c, next) => {
   logger.info("request received", { requestId, method, path });
 
   const start = Date.now();
-  await next();
+  try {
+    await next();
+  } finally {
+    c.header("X-Request-Id", requestId);
 
-  c.header("X-Request-Id", requestId);
+    const duration = Date.now() - start;
+    const status = c.res.status;
 
-  const duration = Date.now() - start;
-  const status = c.res.status;
-
-  logger.info("request completed", {
-    requestId,
-    method,
-    path,
-    status,
-    duration,
-  });
+    logger.info("request completed", {
+      requestId,
+      method,
+      path,
+      status,
+      duration,
+    });
+  }
 });
