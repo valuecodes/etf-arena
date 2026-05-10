@@ -1,7 +1,7 @@
 {
   "extends": "@repo/typescript/react.json",
   "compilerOptions": {
-    "types": ["astro/client"]
+    "types": ["astro/client", "@cloudflare/workers-types"]
   },
   "include": [
     "src",

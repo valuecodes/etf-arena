@@ -1,10 +1,11 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "etf-arena-web",
+  "name": "etf-arena-api",
+  "main": "src/index.ts",
   "compatibility_date": "2026-05-01",
   "observability": { "enabled": true },
   "workers_dev": true,
   "vars": {
-    "API_BASE_URL": "https://etf-arena-api.workers.dev",
+    "WEB_ORIGIN": "https://etf-arena-web.workers.dev",
   },
 }

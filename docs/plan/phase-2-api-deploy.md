@@ -13,7 +13,7 @@ caching model.
 
 - `apps/api/`: Hono app on Cloudflare Workers. Endpoints return hard-coded
   JSON for now:
-  - `GET /healthz` → `{ ok: true }`
+  - `GET /health` → `{ ok: true }`
   - `GET /teams` → 2-3 hard-coded leaderboard rows
   - `GET /teams/:slug` → hard-coded team detail
   - Each response sets the `Cache-Control` header from the architecture
@@ -24,10 +24,13 @@ caching model.
   web origin.
 - `apps/web` switches the landing page to a real leaderboard rendered from
   the api response. The api base URL is read from a build-time env var so
-  dev points to `http://localhost:8788` and prod points to the deployed
+  dev points to `http://localhost:3001` and prod points to the deployed
   hostname.
-- `packages/shared/`: minimal env helper used by both apps so the api base
-  URL is configured consistently.
+- `packages/types/`: Zod schemas + inferred TypeScript types for the API
+  wire contract (`Team`, `TeamsResponse`, `TeamDetail`), used by both
+  apps — `apps/api` to validate fixtures match the schema, `apps/web` to
+  parse the fetch response. Env validation lives **per-app** as small
+  inline Zod schemas (not in the shared package).
 - CI: add `deploy-api.yml` (manual `workflow_dispatch` and/or push-to-main).
 
 ## Out of scope

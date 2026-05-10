@@ -39,7 +39,7 @@ packages/
   market-data/             # Typed Polygon.io client + Zod response schemas
   research/                # Perplexity Sonar client + citation parsing
   agents-core/             # Agent/tool definitions, OpenAI client, prompt assets
-  shared/                  # Cross-cutting types, env parsing, logging helpers
+  types/                   # Cross-app Zod DTOs + inferred TS types (e.g. the api wire contract)
   ui/                      # (optional, can defer) React components shared by web
 tooling/
   eslint/  prettier/  typescript/   # already exist, reused as-is
