@@ -2,6 +2,13 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "etf-arena-web",
   "compatibility_date": "2026-05-01",
+  // Without this flag, fetch() to a *.workers.dev URL on the same account
+  // is routed to the zone's origin server, bypassing the destination
+  // Worker — which on a workers.dev zone has no origin, so requests to the
+  // api worker return 404. Enabling the flag routes the request through
+  // Cloudflare's public edge so the api worker actually handles it.
+  // https://developers.cloudflare.com/workers/configuration/compatibility-flags/
+  "compatibility_flags": ["global_fetch_strictly_public"],
   "observability": { "enabled": true },
   "workers_dev": true,
   // Top-level vars are the default for every deploy. When feature-branch /
